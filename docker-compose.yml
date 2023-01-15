@@ -1,0 +1,55 @@
+version: "3.8"
+
+# sudo DOCKER_BUILDKIT=1 docker build . -t nextcloud-local
+
+services:
+  nextcloud-local:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        database: mysql
+    environment:
+      - DOCKER_BUILDKIT=1
+    container_name: nextcloud-local
+    image: nextcloud-local:latest
+    restart: always
+    ports:
+      - "8080:80"
+    volumes:
+      - type: bind
+        source: /mnt/data/data
+        target: /mnt/data
+      - type: volume
+        source: nextcloud-log
+        target: /var/log
+      - type: volume
+        source: nextcloud-mysql
+        target: /var/lib/mysql
+      - type: volume
+        source: nextcloud-datadir
+        target: /var/www/nextcloud/data
+
+# https://stackoverflow.com/questions/39496564/docker-volume-custom-mount-point
+# sudo docker run -it --rm -p 8080:80 --mount type=bind,src=/mnt/data/nextcloud/log,dst=/var/log --mount type=bind,src=/mnt/data/data,dst=/var/www/nextcloud/data --mount type=volume,dst=/var/lib/mysql,volume-driver=local,volume-opt=type=none,volume-opt=o=bind,volume-opt=device=/mnt/data/nextcloud/mysql --name nextcloud nextcloud:latest
+# sudo docker volume create --driver local --opt type=none --opt o=bind --opt device=/mnt/data/nextcloud/mysql nextcloud-mysql
+volumes:
+  nextcloud-mysql:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/data/nextcloud/mysql
+  nextcloud-log:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/data/nextcloud/log
+  nextcloud-datadir:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/data/nextcloud/datadir
+
