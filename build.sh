@@ -4,4 +4,5 @@
 #sudo DOCKER_BUILDKIT=1 docker compose build ###
 
 sudo docker compose build
+#sudo docker compose up -d
 
